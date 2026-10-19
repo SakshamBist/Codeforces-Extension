@@ -1,0 +1,67 @@
+{
+  "manifest_version": 3,
+  "name": "Codeforces Pro",
+  "version": "1.0.0",
+  "description": "Modern interactive Codeforces workspace with Supabase auth, problem viewer, code editor, testbench, and direct submissions.",
+  "author": "Saksham Bist",
+
+  "icons": {
+    "16":  "assets/icons/icon16.png",
+    "32":  "assets/icons/icon32.png",
+    "48":  "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
+
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16":  "assets/icons/icon16.png",
+      "32":  "assets/icons/icon32.png",
+      "48":  "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    },
+    "default_title": "Codeforces Pro"
+  },
+
+  "permissions": [
+    "storage",
+    "activeTab",
+    "tabs",
+    "scripting",
+    "cookies",
+    "alarms"
+  ],
+
+  "host_permissions": [
+    "https://codeforces.com/*",
+    "https://*.supabase.co/*"
+  ],
+
+  "background": {
+    "service_worker": "src/background/service-worker.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://codeforces.com/*"],
+      "js": ["src/content/content.js"],
+      "run_at": "document_end"
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "src/editor/*",
+        "src/config/*",
+        "src/vendor/*",
+        "assets/icons/*"
+      ],
+      "matches": ["https://codeforces.com/*"]
+    }
+  ],
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

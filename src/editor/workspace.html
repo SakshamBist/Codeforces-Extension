@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Codeforces Pro - Interactive Workspace</title>
+  <link rel="stylesheet" href="workspace.css">
+  <style>
+    /* Fullscreen Auth Gate */
+    .auth-gate {
+      position: fixed;
+      inset: 0;
+      background: #0d1117;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      padding: 20px;
+    }
+    .auth-gate-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+      padding: 32px 28px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+      text-align: center;
+    }
+    .auth-logo {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+    .auth-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #e6edf3;
+      margin-bottom: 4px;
+    }
+    .auth-sub {
+      font-size: 13px;
+      color: #8b949e;
+      margin-bottom: 24px;
+    }
+    .auth-form {
+      text-align: left;
+    }
+    .auth-gate input {
+      width: 100%;
+      padding: 10px 12px;
+      background: #090d13;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #e6edf3;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .auth-gate input:focus {
+      border-color: #58a6ff;
+    }
+    .auth-btn-login {
+      width: 100%;
+      padding: 11px;
+      background: linear-gradient(135deg, #1f6feb, #238636);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .auth-btn-login:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .auth-msg-box {
+      background: rgba(248,81,73,0.15);
+      border: 1px solid #f85149;
+      color: #f85149;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+      text-align: left;
+    }
+    .auth-loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      color: #8b949e;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       AUTH GATE (ONLY AUTHENTICATED USERS CAN ENTER)
+  ============================================================ -->
+  <div class="auth-gate" id="auth-gate">
+    <div class="auth-gate-card">
+      <div class="auth-logo">⚡</div>
+      <div class="auth-title">Codeforces Pro</div>
+      <div class="auth-sub">Restricted Access · Authorized Users Only</div>
+
+      <div class="auth-loading-state" id="auth-gate-loading">
+        <div class="spinner" style="width: 24px; height: 24px; border-width: 3px;"></div>
+        <div>Verifying authentication...</div>
+      </div>
+
+      <div class="auth-form" id="auth-gate-form" style="display:none;">
+        <div class="auth-msg-box" id="auth-gate-error"></div>
+
+        <div class="form-group">
+          <label>User (Email)</label>
+          <input type="email" id="gate-email" placeholder="user@domain.com" autocomplete="username">
+        </div>
+
+        <div class="form-group" style="margin-top: 14px;">
+          <label>Password</label>
+          <input type="password" id="gate-password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+
+        <button class="auth-btn-login" id="btn-gate-login">
+          <span id="gate-login-spinner" class="spinner" style="display:none; margin-right: 6px;"></span>
+          <span id="gate-login-text">Log In</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       WORKSPACE APPLICATION (SHOWN ONLY AFTER LOGIN)
+  ============================================================ -->
+  <div id="workspace-app" style="display:none;">
+    
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="nav-left">
+        <div class="brand" id="brand-home">
+          <span class="brand-icon">⚡</span>
+          <span>CF Pro Workspace</span>
+          <span class="brand-badge">PRO</span>
+        </div>
+
+        <div class="problem-selector-box">
+          <input type="text" id="problem-input" placeholder="e.g. 1900B" title="Enter contest + index">
+          <button id="btn-load-problem" title="Load Problem">Load</button>
+          <button id="btn-random-problem" title="Random Problem">🎲</button>
+        </div>
+
+        <div class="timer-widget">
+          <span id="timer-display">00:00:00</span>
+          <button class="timer-btn" id="btn-timer-toggle" title="Start/Pause">▶</button>
+          <button class="timer-btn" id="btn-timer-reset" title="Reset">↺</button>
+        </div>
+      </div>
+
+      <div class="nav-right">
+        <select class="select-control" id="language-select">
+          <option value="89">GNU C++20 (64-bit)</option>
+          <option value="54">GNU C++17 (64-bit)</option>
+          <option value="71">Python 3.8+</option>
+          <option value="70">PyPy 3.7</option>
+          <option value="87">Java 17 (OpenJDK)</option>
+          <option value="75">Rust 2021</option>
+        </select>
+
+        <button class="btn btn-submit" id="btn-submit-code">
+          <span id="submit-spinner" class="spinner" style="display:none"></span>
+          <span id="submit-icon">🚀</span>
+          <span id="submit-label">Submit to CF</span>
+        </button>
+
+        <div class="user-pill" id="user-pill">
+          <div class="user-avatar" id="user-avatar">?</div>
+          <span id="user-email-text" style="max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">User</span>
+          <button class="timer-btn" id="btn-signout" title="Sign Out">✕</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace Split Container -->
+    <main class="workspace-container" id="workspace-container">
+      
+      <!-- Left Panel: Problem Details -->
+      <section class="panel-problem" id="panel-problem">
+        <div class="problem-header">
+          <div class="problem-meta-top">
+            <span class="problem-id-badge" id="problem-code-display">1900B</span>
+            <span class="problem-rating-badge" id="problem-rating-display">Rating: 1100</span>
+          </div>
+          <h1 class="problem-title" id="problem-title-display">Laura and Operations</h1>
+          <div class="problem-chips" id="problem-chips">
+            <span class="chip" id="time-limit-chip">⏱ 1.0s</span>
+            <span class="chip" id="memory-limit-chip">💾 256MB</span>
+          </div>
+        </div>
+
+        <div class="problem-content" id="problem-content">
+          <div style="text-align:center; padding: 40px 20px; color: var(--text-muted);">
+            <div style="font-size: 32px; margin-bottom: 12px;">⚡</div>
+            <div style="font-size: 16px; font-weight: 600; color: var(--text-main);">Enter a problem code above</div>
+            <div style="font-size: 13px; margin-top: 6px;">Type e.g. <b>1900B</b> or <b>2030A</b> to load statement & test cases.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Resizer Divider -->
+      <div class="resizer" id="resizer-horizontal"></div>
+
+      <!-- Right Panel: Code Editor & Testbench -->
+      <section class="panel-editor-container" id="panel-editor">
+        
+        <div class="editor-toolbar">
+          <div class="editor-toolbar-left">
+            <span style="font-weight: 600; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+              <span>💻 Solution</span>
+              <span id="save-status-badge" style="color: var(--accent-green); font-size: 11px;">(Auto-saved)</span>
+            </span>
+          </div>
+          <div class="editor-toolbar-right">
+            <button class="btn btn-secondary" id="btn-reset-template" style="padding: 4px 8px; font-size: 11px;">Reset Template</button>
+            <button class="btn btn-secondary" id="btn-font-dec" style="padding: 4px 8px; font-size: 11px;">A-</button>
+            <button class="btn btn-secondary" id="btn-font-inc" style="padding: 4px 8px; font-size: 11px;">A+</button>
+          </div>
+        </div>
+
+        <div class="editor-wrapper">
+          <div class="line-numbers" id="line-numbers">1</div>
+          <textarea class="code-textarea" id="code-editor" spellcheck="false" placeholder="// Write your solution here..."></textarea>
+        </div>
+
+        <div class="bottom-dock" id="bottom-dock">
+          <div class="dock-tabs">
+            <div class="dock-tab active" data-tab="tab-samples">Sample Tests (<span id="sample-count">0</span>)</div>
+            <div class="dock-tab" data-tab="tab-custom">Custom Input</div>
+            <div class="dock-tab" data-tab="tab-verdict" id="tab-verdict-head">Verdict & Submissions</div>
+          </div>
+
+          <div class="dock-content">
+            <div id="tab-samples" class="tab-pane">
+              <div id="samples-container" style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="color: var(--text-muted); font-size: 13px;">No samples loaded. Load a problem to view tests.</div>
+              </div>
+            </div>
+
+            <div id="tab-custom" class="tab-pane" style="display:none; height: 100%;">
+              <div class="testcase-grid">
+                <div class="testcase-box">
+                  <label>Custom Stdin</label>
+                  <textarea id="custom-stdin" placeholder="Paste custom test input here..."></textarea>
+                </div>
+                <div class="testcase-box">
+                  <label>Expected Output (Optional)</label>
+                  <textarea id="custom-stdout" placeholder="Paste expected output here..."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div id="tab-verdict" class="tab-pane" style="display:none;">
+              <div class="verdict-card" id="verdict-card">
+                <div class="verdict-status-row">
+                  <div class="verdict-title testing" id="verdict-status-text">
+                    <span>Ready to submit</span>
+                  </div>
+                  <div id="verdict-time-ago" style="font-size: 12px; color: var(--text-muted);">—</div>
+                </div>
+                <div class="verdict-metrics">
+                  <div class="metric-pill">Submission ID: <span id="metric-sub-id" style="color: var(--text-main); font-weight: 700;">—</span></div>
+                  <div class="metric-pill">Time: <span id="metric-time" style="color: var(--text-main); font-weight: 700;">—</span></div>
+                  <div class="metric-pill">Memory: <span id="metric-memory" style="color: var(--text-main); font-weight: 700;">—</span></div>
+                </div>
+                <div id="verdict-extra-info" style="font-size: 13px; color: var(--text-muted);">
+                  Write your code and press "Submit to CF" to send it directly through your logged-in Codeforces session.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../vendor/supabase.esm.js"></script>
+  <script src="workspace.js"></script>
+</body>
+</html>

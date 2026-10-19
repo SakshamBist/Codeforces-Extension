@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Codeforces Pro</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --accent: #58a6ff; --accent2: #3fb950; --warn: #f85149;
+      --muted: #8b949e; --text: #e6edf3; --radius: 8px;
+    }
+    body {
+      width: 340px; background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px; padding: 0;
+    }
+    .header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 16px 18px; border-bottom: 1px solid var(--border); background: var(--surface);
+    }
+    .header-logo { font-size: 24px; }
+    .header-title { font-weight: 700; font-size: 15px; color: var(--accent); }
+    .header-sub { font-size: 12px; color: var(--muted); }
+    .content-box { padding: 18px; }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+    .form-group input {
+      width: 100%; padding: 9px 12px; background: #090d13;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      color: var(--text); font-size: 13px; outline: none; transition: border-color .2s;
+    }
+    .form-group input:focus { border-color: var(--accent); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 6px; width: 100%; padding: 10px; border: none; border-radius: var(--radius);
+      font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn-login {
+      background: linear-gradient(135deg, #1f6feb, #238636); color: #fff; margin-top: 6px;
+    }
+    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-workspace {
+      background: linear-gradient(135deg, #1f6feb, #238636); color: #fff;
+      padding: 12px; font-size: 14px; box-shadow: 0 4px 14px rgba(31,111,235,0.35);
+      margin-bottom: 12px;
+    }
+    .btn-signout {
+      background: var(--surface); color: var(--text); border: 1px solid var(--border);
+    }
+    .btn-signout:hover { background: #21262d; }
+    .msg-error {
+      background: rgba(248,81,73,.15); color: var(--warn); border: 1px solid var(--warn);
+      padding: 8px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 12px; display: none;
+    }
+    .spinner {
+      width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-logo">⚡</div>
+    <div>
+      <div class="header-title">Codeforces Pro</div>
+      <div class="header-sub">Authorized Workspace Access</div>
+    </div>
+  </div>
+
+  <div class="content-box">
+    
+    <!-- State 1: Login Form (Only user and pass, nothing else) -->
+    <div id="login-section">
+      <div class="msg-error" id="login-error-msg"></div>
+
+      <div class="form-group">
+        <label>User (Email)</label>
+        <input type="email" id="input-email" placeholder="user@domain.com" autocomplete="username">
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="input-password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+
+      <button class="btn btn-login" id="btn-login-action">
+        <span id="login-spinner" class="spinner" style="display:none; margin-right:4px;"></span>
+        <span id="login-text">Log In</span>
+      </button>
+
+      <div style="margin-top: 14px; font-size: 11px; color: var(--muted); text-align: center;">
+        Access restricted. Use credentials provided by the admin.
+      </div>
+    </div>
+
+    <!-- State 2: Logged In View -->
+    <div id="authenticated-section" style="display:none; text-align:center;">
+      <div style="font-size: 32px; margin-bottom: 6px;">✅</div>
+      <div style="font-weight: 700; margin-bottom: 2px;">Access Granted</div>
+      <div style="font-size: 12px; color: var(--muted); margin-bottom: 16px;" id="auth-user-email"></div>
+
+      <a href="../editor/workspace.html" target="_blank" class="btn btn-workspace" id="btn-open-workspace">
+        🚀 Open Full Interactive Workspace ↗
+      </a>
+
+      <button class="btn btn-signout" id="btn-signout-action">Log Out</button>
+    </div>
+
+  </div>
+
+  <script src="../vendor/supabase.esm.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
