@@ -7,7 +7,11 @@ verify_jwt = true
 additional_redirect_urls = [
   "chrome-extension://*",
   "chrome-extension://*/*",
-  "chrome-extension://mgogohifhonigfgiklhgecnaoahmilcn/*"
+  "chrome-extension://mgogohifhonigfgiklhgecnaoahmilcn/*",
+  "https://*.chromiumapp.org",
+  "https://*.chromiumapp.org/*",
+  "https://mgogohifhonigfgiklhgecnaoahmilcn.chromiumapp.org",
+  "https://mgogohifhonigfgiklhgecnaoahmilcn.chromiumapp.org/*"
 ]
 site_url = "http://localhost:3000"
 

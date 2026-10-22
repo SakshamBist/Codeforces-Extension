@@ -937,18 +937,76 @@ end.
         }
       }
 
-      const redirectUrl = window.location.href.split("#")[0].split("?")[0];
+      const isExtension = typeof chrome !== "undefined" && Boolean(chrome.identity?.getRedirectURL);
+      const redirectUrl = isExtension ? chrome.identity.getRedirectURL() : window.location.href.split("#")[0].split("?")[0];
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: redirectUrl,
-          skipBrowserRedirect: false,
+          skipBrowserRedirect: isExtension,
         },
       });
 
       if (error) throw error;
+      if (!data?.url) throw new Error("Could not retrieve Google authorization URL.");
 
-      if (data?.url) {
+      if (isExtension && chrome.identity.launchWebAuthFlow) {
+        chrome.identity.launchWebAuthFlow(
+          {
+            url: data.url,
+            interactive: true,
+          },
+          async (redirectedUrl) => {
+            googleBtn.disabled = false;
+            googleText.textContent = "Continue with Google";
+
+            if (chrome.runtime.lastError || !redirectedUrl) {
+              const errMsg = chrome.runtime.lastError?.message || "Sign in was cancelled.";
+              if (!errMsg.toLowerCase().includes("user cancelled") && !errMsg.toLowerCase().includes("closed")) {
+                errorBox.textContent = errMsg;
+                errorBox.style.display = "block";
+              }
+              return;
+            }
+
+            try {
+              const callbackUrl = new URL(redirectedUrl);
+              const hashParams = new URLSearchParams(callbackUrl.hash.replace(/^#/, ""));
+              const searchParams = callbackUrl.searchParams;
+
+              const accessToken = hashParams.get("access_token") || searchParams.get("access_token");
+              const refreshToken = hashParams.get("refresh_token") || searchParams.get("refresh_token");
+
+              if (accessToken && refreshToken) {
+                const { data: sessionData, error: sessionErr } = await supabase.auth.setSession({
+                  access_token: accessToken,
+                  refresh_token: refreshToken,
+                });
+                if (sessionErr) throw sessionErr;
+                if (sessionData?.user) {
+                  unlockWorkspace(sessionData.user);
+                }
+              } else {
+                const code = searchParams.get("code") || hashParams.get("code");
+                if (code) {
+                  const { data: exchangeData, error: exchangeErr } = await supabase.auth.exchangeCodeForSession(code);
+                  if (exchangeErr) throw exchangeErr;
+                  if (exchangeData?.user) {
+                    unlockWorkspace(exchangeData.user);
+                  }
+                } else {
+                  throw new Error("No authentication token was returned.");
+                }
+              }
+            } catch (authErr) {
+              console.error("OAuth session handling failed:", authErr);
+              errorBox.textContent = authErr.message || "Failed to establish session.";
+              errorBox.style.display = "block";
+            }
+          }
+        );
+      } else {
         window.location.href = data.url;
       }
     } catch (err) {
