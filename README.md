@@ -20,6 +20,14 @@ A modern, high-performance in-browser workspace and competitive programming IDE 
 - **Auto-Fetching**: Automatically parses problem statements, time limits, memory limits, and sample test cases.
 - **Direct Submission**: Submit your accepted solution directly to Codeforces in one click.
 
+### 🔐 Glassmorphic Authentication & Access Gate
+- **Google One-Click Sign-In**: Native Google OAuth integration with automatic token exchange via Chrome Identity (`launchWebAuthFlow`).
+- **User & Password Authentication**: Full sign-in and account creation supporting both email addresses and international phone numbers.
+- **Double-Password Verification**: Strict client-side and server-side password confirmation requiring matching verification before account creation.
+- **Instant Account Activation**: Direct backend activation with zero rate-limit or email verification delays.
+- **Celebratory Auto-Redirect**: Smooth transition upon signup with success notification, pre-filled username, and automatic password focus.
+- **Password Visibility Toggles**: Interactive eye toggles on all password and confirm-password fields.
+
 ### 🎨 Apple Glassmorphism & Multi-Theme System
 - **Frameless Floating Navbar**: Modern floating controls that sit cleanly over the workspace background.
 - **⚡ Xenogen Amber**: Sci-fi industrial mecha stencil design with amber-gold marble textures and cybernetic HUD bracket trace lines.
