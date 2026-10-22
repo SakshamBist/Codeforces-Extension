@@ -4,7 +4,11 @@ project_id = "cstqftxvemarvesbremc"
 verify_jwt = true
 
 [auth]
-additional_redirect_urls = ["chrome-extension://*"]
+additional_redirect_urls = [
+  "chrome-extension://*",
+  "chrome-extension://*/*",
+  "chrome-extension://mgogohifhonigfgiklhgecnaoahmilcn/*"
+]
 site_url = "http://localhost:3000"
 
 [auth.email]
@@ -22,5 +26,10 @@ max_client_conn = 200
 
 [storage.vector]
 enabled = false
+
+[auth.external.google]
+enabled = true
+client_id = "541553225522-3vph7e2gq67l4gp53m8uqu46jm6st5a6.apps.googleusercontent.com"
+secret = "env(GOOGLE_CLIENT_SECRET)"
 
 
