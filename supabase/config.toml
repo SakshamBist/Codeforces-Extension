@@ -2,3 +2,25 @@ project_id = "cstqftxvemarvesbremc"
 
 [functions.ai-answer]
 verify_jwt = true
+
+[auth]
+additional_redirect_urls = ["chrome-extension://*"]
+site_url = "http://localhost:3000"
+
+[auth.email]
+enable_confirmations = false
+max_frequency = "1s"
+otp_length = 6
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[db.pooler]
+default_pool_size = 15
+max_client_conn = 200
+
+[storage.vector]
+enabled = false
+
+
