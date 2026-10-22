@@ -23,31 +23,32 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: rgba(10, 12, 22, 0.55);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(10, 12, 22, 0.6);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
       pointer-events: none;
     }
     .auth-gate-card {
       position: relative;
-      background: rgba(18, 24, 38, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 20px;
+      background: rgba(18, 24, 38, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 22px;
       width: 100%;
-      max-width: 420px;
-      padding: 36px 32px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      max-width: 440px;
+      padding: 34px 30px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.72), 0 0 1px rgba(255, 255, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.18);
       backdrop-filter: blur(28px) saturate(180%);
       -webkit-backdrop-filter: blur(28px) saturate(180%);
       text-align: center;
     }
     .auth-logo {
       font-size: 38px;
-      margin-bottom: 8px;
-      filter: drop-shadow(0 0 12px rgba(88, 166, 255, 0.6));
+      margin-bottom: 6px;
+      filter: drop-shadow(0 0 16px rgba(245, 158, 11, 0.65));
+      display: inline-block;
     }
     .auth-title {
-      font-size: 22px;
+      font-size: 23px;
       font-weight: 800;
       color: #fff;
       letter-spacing: -0.5px;
@@ -56,17 +57,102 @@
     .auth-sub {
       font-size: 13px;
       color: rgba(255, 255, 255, 0.65);
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+    }
+    .auth-tabs {
+      display: flex;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 3px;
+      margin-bottom: 18px;
+      gap: 4px;
+    }
+    .auth-tab-btn {
+      flex: 1;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.65);
+      background: transparent;
+      border: none;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .auth-tab-btn.active {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    }
+    .auth-tab-btn:hover:not(.active) {
+      color: rgba(255, 255, 255, 0.95);
+    }
+    .auth-btn-google {
+      width: 100%;
+      padding: 11px 16px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 11px;
+      color: #fff;
+      font-size: 13.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+    .auth-btn-google:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.28);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+    .auth-btn-google:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      margin: 18px 0;
+      color: rgba(255, 255, 255, 0.42);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .auth-divider span {
+      padding: 0 12px;
     }
     .auth-form {
       text-align: left;
     }
+    .auth-form-group {
+      margin-bottom: 14px;
+    }
     .auth-gate label {
       display: block;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
       color: rgba(255, 255, 255, 0.75);
       margin-bottom: 6px;
+    }
+    .input-password-wrapper {
+      position: relative;
+      width: 100%;
     }
     .auth-gate input {
       width: 100%;
@@ -75,48 +161,106 @@
       border: 1px solid rgba(255, 255, 255, 0.16);
       border-radius: 10px;
       color: #fff;
-      font-size: 14px;
+      font-size: 13.5px;
       outline: none;
       transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+    .input-password-wrapper input {
+      padding-right: 40px !important;
+    }
+    .btn-toggle-eye {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.45);
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: color 0.15s ease;
+    }
+    .btn-toggle-eye:hover {
+      color: rgba(255, 255, 255, 0.9);
     }
     .auth-gate input:focus {
-      border-color: #58a6ff;
+      border-color: #f59e0b;
       background: rgba(0, 0, 0, 0.5);
-      box-shadow: 0 0 16px rgba(88, 166, 255, 0.35);
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
     }
-    .auth-btn-login {
+    .auth-btn-primary {
       width: 100%;
       padding: 12px;
-      background: linear-gradient(135deg, rgba(31, 111, 235, 0.9), rgba(35, 134, 54, 0.9));
-      color: #fff;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.95), rgba(217, 119, 6, 0.95));
+      color: #0b0f19;
       font-weight: 700;
       font-size: 14px;
-      border: 1px solid rgba(88, 166, 255, 0.5);
+      border: 1px solid rgba(245, 158, 11, 0.6);
       border-radius: 10px;
       cursor: pointer;
       margin-top: 14px;
-      transition: all 0.2s ease;
-      box-shadow: 0 6px 20px rgba(31, 111, 235, 0.4);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
-    .auth-btn-login:hover:not(:disabled) {
+    .auth-btn-primary:hover:not(:disabled) {
       transform: translateY(-1.5px);
-      box-shadow: 0 8px 26px rgba(31, 111, 235, 0.6);
+      box-shadow: 0 6px 24px rgba(245, 158, 11, 0.55);
+      filter: brightness(1.05);
     }
-    .auth-btn-login:disabled {
+    .auth-btn-primary:disabled {
       opacity: 0.6;
       cursor: not-allowed;
     }
     .auth-msg-box {
-      background: rgba(248, 81, 73, 0.2);
-      border: 1px solid rgba(248, 81, 73, 0.5);
-      color: #ff7b72;
-      padding: 10px 14px;
+      padding: 11px 14px;
       border-radius: 10px;
-      font-size: 13px;
+      font-size: 12.5px;
+      line-height: 1.45;
       margin-bottom: 16px;
       display: none;
       text-align: left;
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(10px);
+    }
+    .auth-msg-error {
+      background: rgba(248, 81, 73, 0.18);
+      border: 1px solid rgba(248, 81, 73, 0.5);
+      color: #ff9994;
+    }
+    .auth-msg-success {
+      background: rgba(46, 160, 67, 0.2);
+      border: 1px solid rgba(46, 160, 67, 0.55);
+      color: #7ee787;
+    }
+    .auth-switch-text {
+      margin-top: 16px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      text-align: center;
+    }
+    .auth-switch-link {
+      color: #f59e0b;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.15s ease;
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: inherit;
+      font-family: inherit;
+    }
+    .auth-switch-link:hover {
+      color: #fbbf24;
     }
     .auth-loading-state {
       display: flex;
@@ -125,6 +269,7 @@
       gap: 12px;
       color: rgba(255, 255, 255, 0.7);
       font-size: 14px;
+      padding: 20px 0;
     }
   </style>
 </head>
@@ -136,8 +281,8 @@
   <div class="auth-gate" id="auth-gate">
     <div class="auth-gate-card">
       <div class="auth-logo">⚡</div>
-      <div class="auth-title">Codeforces Pro</div>
-      <div class="auth-sub">Restricted Access · Authorized Users Only</div>
+      <div class="auth-title">CF Workspace</div>
+      <div class="auth-sub">Competitive Programming Interactive IDE</div>
 
       <div class="auth-loading-state" id="auth-gate-loading">
         <div class="spinner" style="width: 24px; height: 24px; border-width: 3px;"></div>
@@ -145,22 +290,118 @@
       </div>
 
       <div class="auth-form" id="auth-gate-form" style="display:none;">
-        <div class="auth-msg-box" id="auth-gate-error"></div>
+        
+        <!-- Alerts: Error & Success -->
+        <div class="auth-msg-box auth-msg-error" id="auth-gate-error"></div>
+        <div class="auth-msg-box auth-msg-success" id="auth-gate-success"></div>
 
-        <div class="form-group">
-          <label>User (Email)</label>
-          <input type="email" id="gate-email" placeholder="user@domain.com" autocomplete="username">
-        </div>
-
-        <div class="form-group" style="margin-top: 14px;">
-          <label>Password</label>
-          <input type="password" id="gate-password" placeholder="••••••••" autocomplete="current-password">
-        </div>
-
-        <button class="auth-btn-login" id="btn-gate-login">
-          <span id="gate-login-spinner" class="spinner" style="display:none; margin-right: 6px;"></span>
-          <span id="gate-login-text">Log In</span>
+        <!-- Google OAuth Button -->
+        <button type="button" class="auth-btn-google" id="btn-gate-google">
+          <svg viewBox="0 0 24 24" width="18" height="18">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span id="gate-google-text">Continue with Google</span>
         </button>
+
+        <!-- Divider -->
+        <div class="auth-divider">
+          <span>or sign in with credentials</span>
+        </div>
+
+        <!-- Mode Switcher Tabs -->
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab-btn active" id="tab-login">Sign In</button>
+          <button type="button" class="auth-tab-btn" id="tab-signup">Create Account</button>
+        </div>
+
+        <!-- ================= VIEW 1: SIGN IN ================= -->
+        <div id="auth-view-login">
+          <div class="auth-form-group">
+            <label for="gate-email">User (Email or Phone)</label>
+            <input type="text" id="gate-email" placeholder="name@domain.com or +1234567890" autocomplete="username">
+          </div>
+
+          <div class="auth-form-group">
+            <label for="gate-password">Password</label>
+            <div class="input-password-wrapper">
+              <input type="password" id="gate-password" placeholder="••••••••" autocomplete="current-password">
+              <button type="button" class="btn-toggle-eye" data-target="gate-password" title="Toggle password visibility">
+                <svg class="eye-open" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg class="eye-closed" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <button class="auth-btn-primary" id="btn-gate-login">
+            <span id="gate-login-spinner" class="spinner" style="display:none; width: 16px; height: 16px; border-width: 2px;"></span>
+            <span id="gate-login-text">Sign In</span>
+          </button>
+
+          <div class="auth-switch-text">
+            Don't have an account? <button type="button" class="auth-switch-link" id="link-to-signup">Create one</button>
+          </div>
+        </div>
+
+        <!-- ================= VIEW 2: CREATE ACCOUNT ================= -->
+        <div id="auth-view-signup" style="display:none;">
+          <div class="auth-form-group">
+            <label for="gate-signup-email">User (Email or Phone)</label>
+            <input type="text" id="gate-signup-email" placeholder="name@domain.com or +1234567890" autocomplete="username">
+          </div>
+
+          <div class="auth-form-group">
+            <label for="gate-signup-password">Create Password</label>
+            <div class="input-password-wrapper">
+              <input type="password" id="gate-signup-password" placeholder="Min. 6 characters" autocomplete="new-password">
+              <button type="button" class="btn-toggle-eye" data-target="gate-signup-password" title="Toggle password visibility">
+                <svg class="eye-open" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg class="eye-closed" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="auth-form-group">
+            <label for="gate-signup-password-confirm">Confirm Password</label>
+            <div class="input-password-wrapper">
+              <input type="password" id="gate-signup-password-confirm" placeholder="Double write password to match" autocomplete="new-password">
+              <button type="button" class="btn-toggle-eye" data-target="gate-signup-password-confirm" title="Toggle password visibility">
+                <svg class="eye-open" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg class="eye-closed" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <button class="auth-btn-primary" id="btn-gate-signup">
+            <span id="gate-signup-spinner" class="spinner" style="display:none; width: 16px; height: 16px; border-width: 2px;"></span>
+            <span id="gate-signup-text">Create Account</span>
+          </button>
+
+          <div class="auth-switch-text">
+            Already have an account? <button type="button" class="auth-switch-link" id="link-to-login">Sign in</button>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>

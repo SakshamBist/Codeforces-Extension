@@ -426,7 +426,7 @@ end.
             storage: chromeStorageAdapter(),
             autoRefreshToken: true,
             persistSession: true,
-            detectSessionInUrl: false,
+            detectSessionInUrl: true,
           },
         });
 
@@ -498,7 +498,12 @@ end.
     $("auth-gate").style.display = "none";
     $("workspace-app").style.display = "block";
 
-    const email = user.email || "User";
+    // Clean up URL hash if returned from OAuth redirect
+    if (window.location.hash && (window.location.hash.includes("access_token") || window.location.hash.includes("error"))) {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+
+    const email = user.email || user.phone || "User";
     $("user-email-text").textContent = email;
     $("user-avatar").textContent = email.charAt(0).toUpperCase();
 
@@ -523,6 +528,9 @@ end.
     $("auth-gate-loading").style.display = "none";
     $("auth-gate-form").style.display = "block";
     $("gate-password").value = "";
+    if ($("gate-signup-password")) $("gate-signup-password").value = "";
+    if ($("gate-signup-password-confirm")) $("gate-signup-password-confirm").value = "";
+    switchAuthMode("login");
   }
 
   function initThemePicker() {
@@ -594,26 +602,127 @@ end.
     }, { passive: true, capture: true });
   }
 
+  function switchAuthMode(mode) {
+    const isLogin = mode === "login";
+    const tabLogin = $("tab-login");
+    const tabSignup = $("tab-signup");
+    const viewLogin = $("auth-view-login");
+    const viewSignup = $("auth-view-signup");
+    const errorBox = $("auth-gate-error");
+
+    if (tabLogin) tabLogin.classList.toggle("active", isLogin);
+    if (tabSignup) tabSignup.classList.toggle("active", !isLogin);
+    if (viewLogin) viewLogin.style.display = isLogin ? "block" : "none";
+    if (viewSignup) viewSignup.style.display = isLogin ? "none" : "block";
+
+    // Clear error message when switching tabs
+    if (errorBox) errorBox.style.display = "none";
+  }
+
   function initGateListeners() {
-    $("btn-gate-login").addEventListener("click", handleLogin);
-    $("gate-password").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") handleLogin();
-    });
-    $("gate-email").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") handleLogin();
+    // Mode Switcher Tabs
+    const tabLogin = $("tab-login");
+    const tabSignup = $("tab-signup");
+    if (tabLogin) tabLogin.addEventListener("click", () => switchAuthMode("login"));
+    if (tabSignup) tabSignup.addEventListener("click", () => switchAuthMode("signup"));
+
+    // Switch links
+    const linkToSignup = $("link-to-signup");
+    const linkToLogin = $("link-to-login");
+    if (linkToSignup) {
+      linkToSignup.addEventListener("click", (e) => {
+        e.preventDefault();
+        switchAuthMode("signup");
+        const signupEmail = $("gate-signup-email");
+        if (signupEmail) signupEmail.focus();
+      });
+    }
+    if (linkToLogin) {
+      linkToLogin.addEventListener("click", (e) => {
+        e.preventDefault();
+        switchAuthMode("login");
+        const loginEmail = $("gate-email");
+        if (loginEmail) loginEmail.focus();
+      });
+    }
+
+    // Google Sign-In
+    const btnGoogle = $("btn-gate-google");
+    if (btnGoogle) {
+      btnGoogle.addEventListener("click", handleGoogleLogin);
+    }
+
+    // Sign In Actions
+    const btnLogin = $("btn-gate-login");
+    if (btnLogin) btnLogin.addEventListener("click", handleLogin);
+    const gatePass = $("gate-password");
+    if (gatePass) {
+      gatePass.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") handleLogin();
+      });
+    }
+    const gateEmail = $("gate-email");
+    if (gateEmail) {
+      gateEmail.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") handleLogin();
+      });
+    }
+
+    // Sign Up Actions
+    const btnSignup = $("btn-gate-signup");
+    if (btnSignup) btnSignup.addEventListener("click", handleSignUp);
+    const signupPass = $("gate-signup-password");
+    if (signupPass) {
+      signupPass.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") $("gate-signup-password-confirm")?.focus();
+      });
+    }
+    const signupPassConfirm = $("gate-signup-password-confirm");
+    if (signupPassConfirm) {
+      signupPassConfirm.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") handleSignUp();
+      });
+    }
+    const signupEmail = $("gate-signup-email");
+    if (signupEmail) {
+      signupEmail.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") $("gate-signup-password")?.focus();
+      });
+    }
+
+    // Eye Password Visibility Toggles
+    document.querySelectorAll(".btn-toggle-eye").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.getAttribute("data-target");
+        const input = $(targetId);
+        if (!input) return;
+
+        const isPassword = input.type === "password";
+        input.type = isPassword ? "text" : "password";
+
+        const eyeOpen = btn.querySelector(".eye-open");
+        const eyeClosed = btn.querySelector(".eye-closed");
+        if (eyeOpen && eyeClosed) {
+          eyeOpen.style.display = isPassword ? "none" : "block";
+          eyeClosed.style.display = isPassword ? "block" : "none";
+        }
+      });
     });
   }
 
   async function handleLogin() {
-    const email = $("gate-email").value.trim();
+    const identifier = $("gate-email").value.trim();
     const password = $("gate-password").value.trim();
     const errorBox = $("auth-gate-error");
+    const successBox = $("auth-gate-success");
     const loginBtn = $("btn-gate-login");
     const spinner = $("gate-login-spinner");
     const loginText = $("gate-login-text");
 
-    if (!email || !password) {
-      errorBox.textContent = "Please enter both User (Email) and Password.";
+    if (successBox) successBox.style.display = "none";
+
+    if (!identifier || !password) {
+      errorBox.textContent = "Please enter both User (Email or Phone) and Password.";
       errorBox.style.display = "block";
       return;
     }
@@ -621,24 +730,237 @@ end.
     errorBox.style.display = "none";
     loginBtn.disabled = true;
     spinner.style.display = "inline-block";
-    loginText.textContent = "Verifying...";
+    loginText.textContent = "Signing in...";
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      let credentials;
+      if (identifier.includes("@")) {
+        credentials = { email: identifier, password };
+      } else if (/^\+?[0-9\s\-()]{7,}$/.test(identifier)) {
+        try {
+          const settingsRes = await fetch(`${SUPABASE_URL}/auth/v1/settings`, {
+            headers: { apikey: SUPABASE_ANON }
+          });
+          if (settingsRes.ok) {
+            const settings = await settingsRes.json();
+            if (settings?.external && settings.external.phone === false) {
+              throw new Error("Phone sign-in is not enabled in Supabase. Please log in with your email address.");
+            }
+          }
+        } catch (checkErr) {
+          if (checkErr.message.includes("Phone sign-in is not enabled")) throw checkErr;
+        }
+        credentials = { phone: identifier.replace(/[\s\-()]/g, ""), password };
+      } else {
+        credentials = { email: identifier, password };
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword(credentials);
       if (error) {
-        throw new Error("Invalid login credentials. Only authorized accounts created by the admin can log in.");
+        let msg = error.message;
+        if (msg.includes("Invalid login credentials")) {
+          msg = "Invalid username or password. Please verify your credentials.";
+        } else if (msg.includes("Email not confirmed")) {
+          msg = "Email not yet confirmed. Please verify your confirmation email before logging in.";
+        }
+        throw new Error(msg);
       }
 
       if (data?.user) {
         unlockWorkspace(data.user);
       }
     } catch (err) {
-      errorBox.textContent = err.message;
+      errorBox.textContent = err.message || "Sign in failed.";
       errorBox.style.display = "block";
     } finally {
       loginBtn.disabled = false;
       spinner.style.display = "none";
-      loginText.textContent = "Log In";
+      loginText.textContent = "Sign In";
+    }
+  }
+
+  async function handleSignUp() {
+    const identifier = $("gate-signup-email").value.trim();
+    const password = $("gate-signup-password").value;
+    const confirmPassword = $("gate-signup-password-confirm").value;
+    const errorBox = $("auth-gate-error");
+    const successBox = $("auth-gate-success");
+    const signupBtn = $("btn-gate-signup");
+    const spinner = $("gate-signup-spinner");
+    const signupText = $("gate-signup-text");
+
+    if (successBox) successBox.style.display = "none";
+
+    if (!identifier) {
+      errorBox.textContent = "Please enter your email or phone number.";
+      errorBox.style.display = "block";
+      $("gate-signup-email")?.focus();
+      return;
+    }
+
+    const isEmail = identifier.includes("@");
+    const isPhone = /^\+?[0-9\s\-()]{7,}$/.test(identifier);
+
+    if (!isEmail && !isPhone) {
+      errorBox.textContent = "Please enter a valid email address (e.g. user@domain.com) or phone number with country code (+1234567890).";
+      errorBox.style.display = "block";
+      $("gate-signup-email")?.focus();
+      return;
+    }
+
+    if (!password) {
+      errorBox.textContent = "Please create a password (minimum 6 characters).";
+      errorBox.style.display = "block";
+      $("gate-signup-password")?.focus();
+      return;
+    }
+
+    if (password.length < 6) {
+      errorBox.textContent = "Password must be at least 6 characters long.";
+      errorBox.style.display = "block";
+      $("gate-signup-password")?.focus();
+      return;
+    }
+
+    if (!confirmPassword) {
+      errorBox.textContent = "Please double write your password in the confirm field.";
+      errorBox.style.display = "block";
+      $("gate-signup-password-confirm")?.focus();
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      errorBox.textContent = "Passwords do not match. Please ensure both passwords match identically.";
+      errorBox.style.display = "block";
+      $("gate-signup-password-confirm")?.focus();
+      return;
+    }
+
+    errorBox.style.display = "none";
+    signupBtn.disabled = true;
+    spinner.style.display = "inline-block";
+    signupText.textContent = "Creating Account...";
+
+    try {
+      let credentials;
+      if (isEmail) {
+        credentials = {
+          email: identifier,
+          password,
+          options: {
+            data: { created_via: "cf_workspace" }
+          }
+        };
+      } else {
+        try {
+          const settingsRes = await fetch(`${SUPABASE_URL}/auth/v1/settings`, {
+            headers: { apikey: SUPABASE_ANON }
+          });
+          if (settingsRes.ok) {
+            const settings = await settingsRes.json();
+            if (settings?.external && settings.external.phone === false) {
+              throw new Error("Phone sign-up requires SMS provider configuration in Supabase. Please sign up using your email address.");
+            }
+          }
+        } catch (checkErr) {
+          if (checkErr.message.includes("Phone sign-up requires")) throw checkErr;
+        }
+        credentials = {
+          phone: identifier.replace(/[\s\-()]/g, ""),
+          password,
+          options: {
+            data: { created_via: "cf_workspace" }
+          }
+        };
+      }
+
+      const { data, error } = await supabase.auth.signUp(credentials);
+      if (error) throw error;
+
+      // Reset password fields
+      $("gate-signup-password").value = "";
+      $("gate-signup-password-confirm").value = "";
+
+      // Show celebratory success message
+      successBox.innerHTML = `<strong>🎉 Account successfully created!</strong><br>Your account has been created. Please sign in with your credentials below.`;
+      successBox.style.display = "block";
+      errorBox.style.display = "none";
+
+      // Transition user to Sign In view with email prefilled
+      switchAuthMode("login");
+      $("gate-email").value = identifier;
+      $("gate-password").value = "";
+      $("gate-password").focus();
+    } catch (err) {
+      console.warn("Sign up error:", err);
+      let msg = err.message || "Failed to create account.";
+      if (msg.includes("Phone provider is not enabled") || msg.includes("sms")) {
+        msg = "Phone sign up is not enabled in Supabase. Please sign up using your email address.";
+      } else if (msg.toLowerCase().includes("rate limit")) {
+        msg = "Email rate limit reached on Supabase. In your Supabase Dashboard, go to Authentication → Providers → Email and uncheck 'Confirm email' for instant account creation.";
+      }
+      errorBox.textContent = msg;
+      errorBox.style.display = "block";
+    } finally {
+      signupBtn.disabled = false;
+      spinner.style.display = "none";
+      signupText.textContent = "Create Account";
+    }
+  }
+
+  async function handleGoogleLogin() {
+    const errorBox = $("auth-gate-error");
+    const successBox = $("auth-gate-success");
+    if (successBox) successBox.style.display = "none";
+    if (errorBox) errorBox.style.display = "none";
+
+    const googleBtn = $("btn-gate-google");
+    const googleText = $("gate-google-text");
+    googleBtn.disabled = true;
+    googleText.textContent = "Connecting to Google...";
+
+    try {
+      // Check if Google provider is enabled in Supabase project
+      try {
+        const settingsRes = await fetch(`${SUPABASE_URL}/auth/v1/settings`, {
+          headers: { apikey: SUPABASE_ANON }
+        });
+        if (settingsRes.ok) {
+          const settings = await settingsRes.json();
+          if (settings?.external && settings.external.google === false) {
+            throw new Error("Google Sign-In is not yet enabled in your Supabase project. In your Supabase Dashboard, go to Authentication → Providers → Google and enable it with your Google Client ID & Secret.");
+          }
+        }
+      } catch (checkErr) {
+        if (checkErr.message.includes("Google Sign-In is not yet enabled")) {
+          throw checkErr;
+        }
+      }
+
+      const redirectUrl = window.location.href.split("#")[0].split("?")[0];
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: redirectUrl,
+          skipBrowserRedirect: false,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.warn("Google OAuth error:", err);
+      let msg = err.message || "Google sign-in failed.";
+      if (msg.toLowerCase().includes("not enabled") || msg.toLowerCase().includes("unsupported provider")) {
+        msg = "Google sign-in is not yet enabled in your Supabase project. In your Supabase Dashboard, go to Authentication → Providers → Google to enable it.";
+      }
+      errorBox.textContent = msg;
+      errorBox.style.display = "block";
+      googleBtn.disabled = false;
+      googleText.textContent = "Continue with Google";
     }
   }
 

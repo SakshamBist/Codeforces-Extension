@@ -29,7 +29,8 @@
     "tabs",
     "scripting",
     "cookies",
-    "alarms"
+    "alarms",
+    "identity"
   ],
 
   "host_permissions": [
@@ -65,6 +66,6 @@
   ],
 
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://wandbox.org https://codeforces.com https://*.supabase.co"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://wandbox.org https://codeforces.com https://*.supabase.co https://accounts.google.com"
   }
 }
