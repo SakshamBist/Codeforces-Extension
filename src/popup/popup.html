@@ -75,45 +75,17 @@
   <div class="content-box">
     
     <!-- State 1: Login Form (Only user and pass, nothing else) -->
-    <div id="login-section">
-      <div class="msg-error" id="login-error-msg"></div>
-
-      <div class="form-group">
-        <label>User (Email)</label>
-        <input type="email" id="input-email" placeholder="user@domain.com" autocomplete="username">
-      </div>
-
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="input-password" placeholder="••••••••" autocomplete="current-password">
-      </div>
-
-      <button class="btn btn-login" id="btn-login-action">
-        <span id="login-spinner" class="spinner" style="display:none; margin-right:4px;"></span>
-        <span id="login-text">Log In</span>
+    <div style="text-align:center;">
+      <button type="button" class="btn btn-workspace" id="btn-open-workspace">
+        ⚡ Open CF Pro Workspace
       </button>
-
-      <div style="margin-top: 14px; font-size: 11px; color: var(--muted); text-align: center;">
-        Access restricted. Use credentials provided by the admin.
+      <div style="font-size: 11px; color: var(--muted);">
+        Sign in to your authorized account in the workspace.
       </div>
-    </div>
-
-    <!-- State 2: Logged In View -->
-    <div id="authenticated-section" style="display:none; text-align:center;">
-      <div style="font-size: 32px; margin-bottom: 6px;">✅</div>
-      <div style="font-weight: 700; margin-bottom: 2px;">Access Granted</div>
-      <div style="font-size: 12px; color: var(--muted); margin-bottom: 16px;" id="auth-user-email"></div>
-
-      <a href="../editor/workspace.html" target="_blank" class="btn btn-workspace" id="btn-open-workspace">
-        🚀 Open Full Interactive Workspace ↗
-      </a>
-
-      <button class="btn btn-signout" id="btn-signout-action">Log Out</button>
     </div>
 
   </div>
 
-  <script src="../vendor/supabase.esm.js"></script>
-  <script src="popup.js"></script>
+  <script src="open-workspace.js"></script>
 </body>
 </html>

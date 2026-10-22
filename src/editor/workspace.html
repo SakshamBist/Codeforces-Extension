@@ -4,95 +4,126 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Codeforces Pro - Interactive Workspace</title>
+  <link rel="stylesheet" href="../vendor/codemirror/codemirror.min.css">
   <link rel="stylesheet" href="workspace.css">
   <style>
-    /* Fullscreen Auth Gate */
+    /* Fullscreen Auth Gate with Glassmorphism */
     .auth-gate {
       position: fixed;
       inset: 0;
-      background: #0d1117;
+      background: #0d1612 url('cat-jungle.jpg') no-repeat center center fixed;
+      background-size: cover;
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 99999;
       padding: 20px;
     }
+    .auth-gate::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 12, 22, 0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      pointer-events: none;
+    }
     .auth-gate-card {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 12px;
+      position: relative;
+      background: rgba(18, 24, 38, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 20px;
       width: 100%;
-      max-width: 400px;
-      padding: 32px 28px;
-      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+      max-width: 420px;
+      padding: 36px 32px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
       text-align: center;
     }
     .auth-logo {
-      font-size: 36px;
+      font-size: 38px;
       margin-bottom: 8px;
+      filter: drop-shadow(0 0 12px rgba(88, 166, 255, 0.6));
     }
     .auth-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: #e6edf3;
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
       margin-bottom: 4px;
     }
     .auth-sub {
       font-size: 13px;
-      color: #8b949e;
+      color: rgba(255, 255, 255, 0.65);
       margin-bottom: 24px;
     }
     .auth-form {
       text-align: left;
     }
+    .auth-gate label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 6px;
+    }
     .auth-gate input {
       width: 100%;
-      padding: 10px 12px;
-      background: #090d13;
-      border: 1px solid #30363d;
-      border-radius: 6px;
-      color: #e6edf3;
+      padding: 11px 14px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 10px;
+      color: #fff;
       font-size: 14px;
       outline: none;
-      transition: border-color 0.2s;
+      transition: all 0.2s ease;
     }
     .auth-gate input:focus {
       border-color: #58a6ff;
+      background: rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 16px rgba(88, 166, 255, 0.35);
     }
     .auth-btn-login {
       width: 100%;
-      padding: 11px;
-      background: linear-gradient(135deg, #1f6feb, #238636);
+      padding: 12px;
+      background: linear-gradient(135deg, rgba(31, 111, 235, 0.9), rgba(35, 134, 54, 0.9));
       color: #fff;
       font-weight: 700;
       font-size: 14px;
-      border: none;
-      border-radius: 6px;
+      border: 1px solid rgba(88, 166, 255, 0.5);
+      border-radius: 10px;
       cursor: pointer;
-      margin-top: 10px;
-      transition: opacity 0.2s, transform 0.1s;
+      margin-top: 14px;
+      transition: all 0.2s ease;
+      box-shadow: 0 6px 20px rgba(31, 111, 235, 0.4);
+    }
+    .auth-btn-login:hover:not(:disabled) {
+      transform: translateY(-1.5px);
+      box-shadow: 0 8px 26px rgba(31, 111, 235, 0.6);
     }
     .auth-btn-login:disabled {
       opacity: 0.6;
       cursor: not-allowed;
     }
     .auth-msg-box {
-      background: rgba(248,81,73,0.15);
-      border: 1px solid #f85149;
-      color: #f85149;
-      padding: 10px;
-      border-radius: 6px;
+      background: rgba(248, 81, 73, 0.2);
+      border: 1px solid rgba(248, 81, 73, 0.5);
+      color: #ff7b72;
+      padding: 10px 14px;
+      border-radius: 10px;
       font-size: 13px;
       margin-bottom: 16px;
       display: none;
       text-align: left;
+      backdrop-filter: blur(8px);
     }
     .auth-loading-state {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 12px;
-      color: #8b949e;
+      color: rgba(255, 255, 255, 0.7);
       font-size: 14px;
     }
   </style>
@@ -142,19 +173,24 @@
     <!-- Top Navigation Bar -->
     <header class="navbar">
       <div class="nav-left">
-        <div class="brand" id="brand-home">
+        <div class="brand brand-xenogen" id="brand-home" title="CF Workspace - Click to Reload">
+          <svg class="brand-hud-line brand-hud-top" viewBox="0 0 200 8" fill="none" preserveAspectRatio="none">
+            <path d="M 0 6 L 20 6 L 26 2 L 85 2 L 91 6 L 145 6 L 151 2 L 190 2 L 195 6 L 200 6" stroke="#f59e0b" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
           <span class="brand-icon">⚡</span>
-          <span>CF Pro Workspace</span>
-          <span class="brand-badge">PRO</span>
+          <span class="brand-text">CF WORKSPACE</span>
+          <svg class="brand-hud-line brand-hud-bottom" viewBox="0 0 200 8" fill="none" preserveAspectRatio="none">
+            <path d="M 10 2 L 50 2 L 56 6 L 115 6 L 121 2 L 165 2 L 171 6 L 195 6" stroke="#f59e0b" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
         </div>
 
         <div class="problem-selector-box">
-          <input type="text" id="problem-input" placeholder="e.g. 1900B" title="Enter contest + index">
-          <button id="btn-load-problem" title="Load Problem">Load</button>
-          <button id="btn-random-problem" title="Random Problem">🎲</button>
+          <input type="text" id="problem-input" placeholder="Search problem (e.g. 1900B)" title="Enter problem code &amp; press Enter or click 🎲">
+          <button id="btn-random-problem" title="Load Problem or Roll Random (🎲)">🎲</button>
         </div>
 
-        <div class="timer-widget">
+        <div class="timer-widget" id="timer-widget" data-timer-state="idle">
+          <div class="timer-ring-dot" id="timer-ring-dot" title="Timer Ring Status"></div>
           <span id="timer-display">00:00:00</span>
           <button class="timer-btn" id="btn-timer-toggle" title="Start/Pause">▶</button>
           <button class="timer-btn" id="btn-timer-reset" title="Reset">↺</button>
@@ -162,13 +198,57 @@
       </div>
 
       <div class="nav-right">
+        <select class="select-control" id="theme-select" title="Switch Workspace Theme">
+          <option value="xenogen">⚡ Xenogen Amber</option>
+          <option value="jungle" selected>🌿 Jungle Cat</option>
+          <option value="sunset">🌅 Sunset Horizon</option>
+          <option value="azidox">🩸 Azidox Crimson</option>
+          <option value="slate">🍏 Frosted Slate</option>
+          <option value="midnight">🌌 Midnight OLED</option>
+          <option value="clean-light">🕊️ Pure Light</option>
+        </select>
+
         <select class="select-control" id="language-select">
-          <option value="89">GNU C++20 (64-bit)</option>
-          <option value="54">GNU C++17 (64-bit)</option>
-          <option value="71">Python 3.8+</option>
-          <option value="70">PyPy 3.7</option>
-          <option value="87">Java 17 (OpenJDK)</option>
-          <option value="75">Rust 2021</option>
+          <optgroup label="C and C++">
+            <option value="cf-gcc-c11">GNU GCC C11 5.1.0</option>
+            <option value="cf-gpp17">GNU G++17 7.3.0</option>
+            <option value="cf-gpp20" selected>GNU G++20 13.2.0 (64 bit, winlibs)</option>
+            <option value="cf-gpp23">GNU G++23 14.2.0 (64 bit, msys2)</option>
+          </optgroup>
+          <optgroup label="C# and .NET">
+            <option value="cf-csharp8">C# 8, .NET Core 3.1</option>
+            <option value="cf-csharp10">C# 10, .NET SDK 6.0</option>
+            <option value="cf-csharp13">C# 13, .NET SDK 9</option>
+            <option value="cf-csharp-mono">C# Mono 6.8</option>
+          </optgroup>
+          <optgroup label="Other languages">
+            <option value="cf-d">D DMD32 v2.105.0</option>
+            <option value="cf-fsharp">F# 9, .NET SDK 9</option>
+            <option value="cf-go">Go 1.22.2</option>
+            <option value="cf-haskell">Haskell GHC 8.10.1</option>
+            <option value="cf-java21">Java 21 64bit</option>
+            <option value="cf-java8">Java 8 32bit</option>
+            <option value="cf-kotlin1720">Kotlin 1.7.20</option>
+            <option value="cf-kotlin1921">Kotlin 1.9.21</option>
+            <option value="cf-kotlin220">Kotlin 2.2.0</option>
+            <option value="cf-ocaml">OCaml 4.02.1</option>
+            <option value="cf-delphi">Delphi 7</option>
+            <option value="cf-pascal">Free Pascal 3.2.2</option>
+            <option value="cf-pascalabc">PascalABC.NET 3.8.3</option>
+            <option value="cf-perl">Perl 5.20.1</option>
+            <option value="cf-php">PHP 8.1.7</option>
+            <option value="cf-python2">Python 2.7.18</option>
+            <option value="cf-python3">Python 3.13.2</option>
+            <option value="cf-pypy2">PyPy 2.7.13 (7.3.0)</option>
+            <option value="cf-pypy36">PyPy 3.6.9 (7.3.0)</option>
+            <option value="cf-pypy310">PyPy 3.10 (7.3.15, 64bit)</option>
+            <option value="cf-ruby">Ruby 3.2.2</option>
+            <option value="cf-rust2021">Rust 1.89.0 (2021)</option>
+            <option value="cf-rust2024">Rust 1.89.0 (2024)</option>
+            <option value="cf-scala">Scala 2.12.8</option>
+            <option value="cf-javascript-v8">JavaScript V8 4.8.0</option>
+            <option value="cf-nodejs">Node.js 15.8.0 (64bit)</option>
+          </optgroup>
         </select>
 
         <button class="btn btn-submit" id="btn-submit-code">
@@ -192,8 +272,14 @@
       <section class="panel-problem" id="panel-problem">
         <div class="problem-header">
           <div class="problem-meta-top">
-            <span class="problem-id-badge" id="problem-code-display">1900B</span>
-            <span class="problem-rating-badge" id="problem-rating-display">Rating: 1100</span>
+            <div class="problem-meta-badges">
+              <span class="problem-id-badge" id="problem-code-display">1900B</span>
+              <span class="problem-rating-badge" id="problem-rating-display">Rating: 1100</span>
+            </div>
+            <div class="problem-zoom-controls">
+              <button class="btn btn-secondary btn-zoom" id="btn-problem-font-dec" title="Zoom Out Question (A-)">A-</button>
+              <button class="btn btn-secondary btn-zoom" id="btn-problem-font-inc" title="Zoom In Question (A+)">A+</button>
+            </div>
           </div>
           <h1 class="problem-title" id="problem-title-display">Laura and Operations</h1>
           <div class="problem-chips" id="problem-chips">
@@ -220,31 +306,42 @@
         <div class="editor-toolbar">
           <div class="editor-toolbar-left">
             <span style="font-weight: 600; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
-              <span>💻 Solution</span>
+              <span id="editor-language-label">💻 C++20</span>
               <span id="save-status-badge" style="color: var(--accent-green); font-size: 11px;">(Auto-saved)</span>
             </span>
           </div>
           <div class="editor-toolbar-right">
+            <button class="btn btn-run" id="btn-run-code" title="Run custom input (⌘/Ctrl+Enter)">▶ Run Code</button>
             <button class="btn btn-secondary" id="btn-reset-template" style="padding: 4px 8px; font-size: 11px;">Reset Template</button>
             <button class="btn btn-secondary" id="btn-font-dec" style="padding: 4px 8px; font-size: 11px;">A-</button>
             <button class="btn btn-secondary" id="btn-font-inc" style="padding: 4px 8px; font-size: 11px;">A+</button>
           </div>
         </div>
 
-        <div class="editor-wrapper">
-          <div class="line-numbers" id="line-numbers">1</div>
+        <div class="editor-wrapper" id="editor-wrapper">
           <textarea class="code-textarea" id="code-editor" spellcheck="false" placeholder="// Write your solution here..."></textarea>
+        </div>
+
+        <!-- Vertical Resizer Handle Between Editor and Bottom Dock -->
+        <div class="resizer-horizontal-dock" id="resizer-dock" title="Drag to resize dock">
+          <div class="resizer-pill-grip"></div>
         </div>
 
         <div class="bottom-dock" id="bottom-dock">
           <div class="dock-tabs">
+            <div class="dock-tab-indicator" id="dock-tab-indicator"></div>
             <div class="dock-tab active" data-tab="tab-samples">Sample Tests (<span id="sample-count">0</span>)</div>
             <div class="dock-tab" data-tab="tab-custom">Custom Input</div>
-            <div class="dock-tab" data-tab="tab-verdict" id="tab-verdict-head">Verdict & Submissions</div>
+            <div class="dock-tab" data-tab="tab-output">Output</div>
+            <div class="dock-tab" data-tab="tab-verdict" id="tab-verdict-head">Verdict &amp; Submissions</div>
           </div>
 
           <div class="dock-content">
             <div id="tab-samples" class="tab-pane">
+              <div class="samples-toolbar">
+                <span>Run your solution against the problem samples.</span>
+                <button class="btn btn-run" id="btn-run-samples">▶ Run Samples</button>
+              </div>
               <div id="samples-container" style="display: flex; flex-direction: column; gap: 10px;">
                 <div style="color: var(--text-muted); font-size: 13px;">No samples loaded. Load a problem to view tests.</div>
               </div>
@@ -263,7 +360,32 @@
               </div>
             </div>
 
+            <div id="tab-output" class="tab-pane" style="display:none;">
+              <div class="output-toolbar">
+                <span id="output-status" class="output-status">Ready</span>
+                <span class="output-service-note">Wandbox hosted multi-language runner</span>
+              </div>
+              <pre class="output-content" id="output-content">Run your code to see program output or compiler/runtime errors here.</pre>
+            </div>
+
             <div id="tab-verdict" class="tab-pane" style="display:none;">
+              <!-- Turnstile Interactive Verification Notice -->
+              <div id="verdict-turnstile-alert" class="turnstile-alert" style="display:none;">
+                <div class="turnstile-alert-content">
+                  <div class="turnstile-alert-icon">🛡️</div>
+                  <div>
+                    <div style="font-weight: 700; font-size: 13px; color: #fff;">Cloudflare Anti-Bot Check Detected</div>
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 2px;">
+                      Please verify the Cloudflare checkbox. Click below to focus the verification window.
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-primary" id="btn-focus-cf-turnstile" style="font-size: 12px; padding: 6px 14px;">
+                  Verify Human Check ↗
+                </button>
+              </div>
+
+              <!-- Main Submission Status Card -->
               <div class="verdict-card" id="verdict-card">
                 <div class="verdict-status-row">
                   <div class="verdict-title testing" id="verdict-status-text">
@@ -276,8 +398,23 @@
                   <div class="metric-pill">Time: <span id="metric-time" style="color: var(--text-main); font-weight: 700;">—</span></div>
                   <div class="metric-pill">Memory: <span id="metric-memory" style="color: var(--text-main); font-weight: 700;">—</span></div>
                 </div>
-                <div id="verdict-extra-info" style="font-size: 13px; color: var(--text-muted);">
+                <div id="verdict-extra-info" style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
                   Write your code and press "Submit to CF" to send it directly through your logged-in Codeforces session.
+                </div>
+              </div>
+
+              <!-- LeetCode-style Submissions History Table -->
+              <div class="submissions-history-section" style="margin-top: 16px;">
+                <div class="submissions-header">
+                  <span style="font-weight: 700; font-size: 13px; color: var(--text-main);">Recent Submissions</span>
+                  <button type="button" class="btn btn-secondary" id="btn-refresh-submissions" style="padding: 3px 10px; font-size: 11px;">
+                    ↻ Refresh
+                  </button>
+                </div>
+                <div id="submissions-history-container" class="submissions-list-container">
+                  <div style="text-align: center; padding: 18px; color: var(--text-muted); font-size: 12px;">
+                    Click "Submit to CF" to submit your solution, or "↻ Refresh" to see past submissions.
+                  </div>
                 </div>
               </div>
             </div>
@@ -287,6 +424,16 @@
     </main>
   </div>
 
+  <script src="../vendor/codemirror/codemirror.min.js"></script>
+  <script src="../vendor/codemirror/clike.min.js"></script>
+  <script src="../vendor/codemirror/python.min.js"></script>
+  <script src="../vendor/codemirror/rust.min.js"></script>
+  <script src="../vendor/codemirror/go.min.js"></script>
+  <script src="../vendor/codemirror/javascript.min.js"></script>
+  <script src="../vendor/codemirror/ruby.min.js"></script>
+  <script src="../vendor/codemirror/pascal.min.js"></script>
+  <script src="../vendor/codemirror/closebrackets.min.js"></script>
+  <script src="../vendor/codemirror/matchbrackets.min.js"></script>
   <script src="../vendor/supabase.esm.js"></script>
   <script src="workspace.js"></script>
 </body>

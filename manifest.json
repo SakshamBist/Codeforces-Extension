@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Codeforces Pro",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Modern interactive Codeforces workspace with Supabase auth, problem viewer, code editor, testbench, and direct submissions.",
   "author": "Saksham Bist",
 
@@ -20,7 +20,7 @@
       "48":  "assets/icons/icon48.png",
       "128": "assets/icons/icon128.png"
     },
-    "default_title": "Codeforces Pro"
+    "default_title": "Codeforces Pro Workspace"
   },
 
   "permissions": [
@@ -34,7 +34,8 @@
 
   "host_permissions": [
     "https://codeforces.com/*",
-    "https://*.supabase.co/*"
+    "https://*.supabase.co/*",
+    "https://wandbox.org/*"
   ],
 
   "background": {
@@ -55,13 +56,15 @@
         "src/editor/*",
         "src/config/*",
         "src/vendor/*",
-        "assets/icons/*"
+        "src/vendor/codemirror/*",
+        "assets/icons/*",
+        "assets/images/*"
       ],
       "matches": ["https://codeforces.com/*"]
     }
   ],
 
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://wandbox.org https://codeforces.com https://*.supabase.co"
   }
 }
